@@ -31,6 +31,18 @@ jobs:
     needs: ci
     runs-on: self-hosted
     steps:
+      - name: Modify values file
+        shell: bash
+        run: | 
+          echo ${{needs.ci.outputs.commit_id}}
+          pip install yq
+          yq -Yi '.image.tag = "${{needs.ci.outputs.commit_id}}"' charts/python-app/values.yaml
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Updates values.yaml with commit ${{needs.ci.outputs.commit_id}}'
+
       - name: Install Argocd
         shell: bash
         run: |
